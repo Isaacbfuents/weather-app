@@ -3,6 +3,7 @@
 <head>
     <title>Weather App</title>
     <link rel="icon" href="./assets/icon.png">
+    <link href="../src/style.css" rel="stylesheet">
     <meta charset="UTF-8">
 </head>
 <body>
@@ -11,10 +12,48 @@
             <h1>Weather App</h1>
             <p>This is an app where you can see the weather in your city.</p>
         </div>
-        <div>
-            
+        <form>
+            <label for="city">City:</label>
+            <input type="text" id="city" name="city" placeholder="Enter a city">
+            <label for="countrySelect">Country:</label>
+            <select id="countrySelect">
+                <option value="" selected disabled hidden>Select a country to get the weather</option>
+            </select>
+            <!-- Script to generate the options of the select with all the countries -->
+            <script>
+                document.addEventListener('DOMContentLoaded', () => {
+                    const select = document.getElementById('countrySelect');
+
+                    try {
+                        fetch('data/countries.json')
+                        .then(response => response.json())
+                        .then(countries => {
+                            console.log(countries)
+                            countries.forEach(country => {
+                                const option = document.createElement('option');
+                                option.textContent = country.nameEN;
+                                option.value = country.iso3;
+
+                                select.appendChild(option); 
+                            })
+                        })
+                    } catch (error) {
+                        console.log(error)
+                    }
+                })
+            </script>
+            <button id="searchBtn" type="submit">Search weather</button>
+        </form>
+        <div id="results">
+
         </div>
     </main>
-    
+    <footer>
+        <p>© <span id="yearFooter"></span> Isaac Fuentes. All rights reserved. Weather App Project.</p>
+    </footer>
+    <script>
+        const year = new Date().getFullYear();
+        document.getElementById('yearFooter').textContent = year;
+    </script>
 </body>
 </html>
