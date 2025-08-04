@@ -1,46 +1,35 @@
 import 'dotenv/config';
 
 // Get the coordenates
-function getGeo(req, res, next) {
-    try {
-        const cityName = req.query.city;
-        const countryCode = req.query.country;
-      
-        const url = `http://api.openweathermap.org/geo/1.0/direct?q=${cityName},${countryCode}&appid=${process.env.API_KEY}`;
+async function handleAutocomplete(req, res) {
+    const query = req.query.q;
+    
+    const url = `https://api.mapbox.com/search/geocode/v6/forward?q=${query}&access_token=${process.env.ACCESS_TOKEN}`;
 
-        fetch(url)
+    try {
+        await fetch(url)
             .then(response => response.json())
             .then(data => {
-                req.weatherInfo = data;
-                next();
+                console.log(data)
+                const features = data.features;
+                res.send(features);
             })
-    } catch (error) {
-        console.log(error);
-        next(error)
-    }
-}
-
-// Get the weather through the coordinates
-function getWeather(req, res) {
-
-    try {
-        const weatherInfo = req.weatherInfo;
-        const latitud = weatherInfo[0].lat;
-        const longitud = weatherInfo[0].lon;
-    
-        const url = `https://api.openweathermap.org/data/2.5/weather?lat=${latitud}&lon=${longitud}&units=metric&appid=${process.env.API_KEY}` 
-
-        fetch(url)
-            .then(response => response.json())
-            .then(weather => res.send(weather))
     } catch (error) {
         console.log(error)
     }
     
+}
 
-    
+// Get the weather through the coordinates
+async function getWeather(req, res) {
+    const { lat, lon } = req.query;
+    const url = `https://api.openweathermap.org/data/3.0/onecall?lat=${lat}&lon=${lon}&appid=${process.env.API_KEY}`
+
+    await fetch(url)
+        .then(response => response.json())
+        .then(data => console.log(data))
 }
 export {
-    getGeo, 
+    handleAutocomplete, 
     getWeather
 }
