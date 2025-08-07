@@ -1,29 +1,18 @@
-import { useState } from 'react'
-import axios from 'axios';
+
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Home from './pages/Home';
+import Landing from './pages/Landing'; // por ejemplo
 
 
 function App() {
 
-  function handleGet() {
-    axios.get('http://localhost:3000/api/auth/session', {}, { withCredentials: true })
-
-  }
-  function handleClick() {
-    try {
-      axios.post('http://localhost:3000/api/auth/refresh', {}, { withCredentials: true });
-      console.log('Peticion correcta, cookies enviadas.')
-    } catch (error) {
-      console.log(error)
-    }
-
-  }
-
-
   return (
-    <div>
-      <button onClick={handleGet}>Get cookie</button>
-      <button onClick={handleClick}>Send Cookie</button>
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Landing />} />
+        <Route path="/home" element={<Home />} />
+      </Routes>
+    </Router>
   )
 }
 

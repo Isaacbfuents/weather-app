@@ -38,6 +38,7 @@ app.use(cookieParser());
 
 connectDB();
 
+app.get('/', requiresAuth(), handleAuthCallback)
 
 app.use('/api/auth', authRoutes);
 
