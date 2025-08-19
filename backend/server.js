@@ -3,50 +3,69 @@ import connectDB from './config/db.js';
 import 'dotenv/config';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
-import pkg from 'express-openid-connect';
-const { auth, requiresAuth } = pkg;
+import { auth, requiredScopes } from 'express-oauth2-jwt-bearer'; 
+
+
 import { handleAutocomplete, getWeather } from './utils.js';
 import authRoutes from './routes/authRoutes.js';
 import weatherRoutes from './routes/weatherRoutes.js'
-import handleAuthCallback from './controllers/authCallback.js';
-import { handleSession } from './controllers/authController.js';
+
+
 const app = express();
-
-// Auth0 config
-const config = {
-  authRequired: false,
-  auth0Logout: true,
-  secret: process.env.AUTH0_SECRET,
-  baseURL: 'http://localhost:3000',
-  clientID: process.env.AUTH0_CLIENT_ID,
-  issuerBaseURL: process.env.AUTH0_DOMAIN
-}
-
-// Auth router attaches /login, /logout, and /callback routes to the baseURL
-app.use(auth(config));
 
 // Can read json files
 app.use(express.json());
 
 // Configuracion de CORS
 app.use(cors({
-    origin: 'http://localhost:5173',
-    credentials: true
+  origin: 'http://localhost:5173',
+  credentials: true
 }));
 
 app.use(cookieParser());
 
 connectDB();
 
-app.get('/', requiresAuth(), handleAuthCallback)
 
-app.use('/api/auth', authRoutes);
 
-app.use('/api/weather', weatherRoutes);
+// Authorization middleware. When used, the Access Token must
+// exist and be verified against the Auth0 JSON Web Key Set.
+const checkJwt = auth({
+  audience: 'http://api.nimbustime',
+  issuerBaseURL: 'https://dev-f5eb02fg8yfg3a3y.us.auth0.com/',
+});
 
-app.get('/api/autocomplete', handleAutocomplete);
+// This route doesn't need authentication
+app.get('/api/public', function(req, res) {
+  res.json({
+message: 'Hello from a public endpoint! You don\'t need to be authenticated to see this.'
+  });
+});
 
-app.get('/api/weather', getWeather);
+// This route needs authentication
+app.get('/api/private', checkJwt, function(req, res) {
+  res.json({
+message: 'Hello from a private endpoint! You need to be authenticated to see this.'
+  });
+});
+
+const checkScopes = requiredScopes('read:messages');
+
+    app.get('/api/private-scoped', checkJwt, checkScopes, function(req, res) {
+      res.json({
+message: 'Hello from a private endpoint! You need to be authenticated and have a scope of read:messages to see this.'
+      });
+    });
+
+
+
+app.use('/auth', authRoutes);
+
+app.use('/weather', weatherRoutes);
+
+app.get('/autocomplete',checkJwt, handleAutocomplete);
+
+// app.get('/api/weather', getWeather);
 
 
 

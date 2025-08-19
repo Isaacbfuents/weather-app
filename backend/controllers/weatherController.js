@@ -1,0 +1,8 @@
+
+function getWeather() {
+
+}
+
+export {
+    getWeather
+}

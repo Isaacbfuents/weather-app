@@ -1,17 +1,27 @@
 import express from 'express';
-import pkg from 'express-openid-connect';
-const { requiresAuth } = pkg;
-import { handleSession, refreshAccessToken } from '../controllers/authController.js';
+import { handleSession } from '../controllers/authController.js';
+import { auth, requiredScopes } from 'express-oauth2-jwt-bearer'; 
 
 const router = express.Router();
 
+
+// Authorization middleware. When used, the Access Token must
+// exist and be verified against the Auth0 JSON Web Key Set.
+const checkJwt = auth({
+    audience: 'http://api.nimbustime',
+    issuerBaseURL: 'https://dev-f5eb02fg8yfg3a3y.us.auth0.com/',
+});
+
+
 // handleSession after login or register
-router.get('/session', requiresAuth(), handleSession);
+router.post('/session', checkJwt, handleSession);
 
-// Refresh the access token
-router.post('/refresh', refreshAccessToken)
 
-router.get('/profile', requiresAuth(), (req, res) => {
+
+
+
+
+router.get('/profile', (req, res) => {
     console.log(req.oidc.user);
     res.send(JSON.stringify(req.oidc.user));
 });

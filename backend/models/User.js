@@ -2,38 +2,28 @@ import mongoose from "mongoose";
 const { Schema } = mongoose;
 
 const userSchema = new Schema({
+    sub: {
+      type: String,
+      required: true,
+      unique: true
+    },
     name: {
-        type: String,
-        trim: true
+      type: String,
+      trim: true
     },
     email: {
-        type: String,
-        required: true,
-        trim: true,
-        unique: true
+      type: String,
+      trim: true
+    },
+    emailVerified: {
+      type: Boolean,
+      default: false
     },
     picture: {
-        type: String,
-        trim: true
-    },
-    identities: [
-        {
-            provider: String,
-            connection: String,
-            user_id: String,
-            isSocial: Boolean
-        }
-    ],
-    emailVerified: {
-        type: Boolean
-    },
-    sub: {
-        type: String,
-        required: true
+      type: String,
+      trim: true
     }
-
-}, { timestamps: true })
-
+  }, { timestamps: true });
 
 const User = mongoose.model('User', userSchema);
 

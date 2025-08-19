@@ -1,10 +1,23 @@
 import 'dotenv/config';
+import User from './models/User.js';
 
-// Get the coordenates
+// Autocomplete function
 async function handleAutocomplete(req, res) {
+    const sub = req.auth.payload.sub;
+    
+    // Make sure a user exists with that sub
+    const userExists = await User.findOne({ sub })
+    
+    if(!userExists) {
+        return res.status(403).json({ 
+            error: "User not registered",
+            message: "You need to create an account before using this feature." 
+        })
+    }
+    // If user exists
     const query = req.query.q;
     
-    const url = `https://api.mapbox.com/search/geocode/v6/forward?q=${query}&access_token=${process.env.ACCESS_TOKEN}`;
+    const url = `https://api.mapbox.com/search/geocode/v6/forward?q=${query}&access_token=${process.env.MAPBOX_TOKEN}`;
 
     try {
         await fetch(url)
@@ -17,7 +30,7 @@ async function handleAutocomplete(req, res) {
     } catch (error) {
         console.log(error)
     }
-    
+
 }
 
 // Get the weather through the coordinates
