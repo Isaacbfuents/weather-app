@@ -31,10 +31,10 @@ function Home() {
     
 
     return (
-        <div>
+        <div className='flex'>
             
             < SearchInput />
-            <button onClick={handleOnClick}>Fetch api</button>    
+            <button onClick={handleOnClick} className='m-4 p-4'>Fetch api</button>    
             < LogoutButton />     
         </div>
         

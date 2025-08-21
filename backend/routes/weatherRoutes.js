@@ -3,7 +3,7 @@ import { getWeather } from '../controllers/weatherController.js';
 
 const router = express.Router();
 
-router.get('/current', getWeather);
+router.get('/', getWeather);
 
 
 export default router;
