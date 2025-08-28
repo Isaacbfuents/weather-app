@@ -1,8 +1,11 @@
 import { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useAuth0 } from "@auth0/auth0-react";
+import toSlug from "../utils/slug.js";
 
-function SearchInput() {
+function SearchInput( { onSelect }) {
+    const navigate = useNavigate();
 
     const { getAccessTokenSilently } = useAuth0();
 
@@ -10,7 +13,8 @@ function SearchInput() {
     const [query, setQuery] = useState("");
     const [ suggestions, setSuggestions] = useState([]);
     const [ showSuggestions, setShowSuggestions ] = useState(false);
-    const [ optionSelected, setOptionSelected ] = useState(false);
+    const [ optionSelected, setOptionSelected ] = useState(null);
+    
 
     const debounceTimer = useRef(null);
     const wrapperRef = useRef(null);
@@ -31,7 +35,7 @@ function SearchInput() {
 
     // Fetch api for autocomplete suggestions when query change and optionSelected = false
     useEffect( () => {
-        if( !optionSelected ) {
+        if( !optionSelected || optionSelected !== query.trim() ) {
             fetchAutocomplete();
         }
         if(query.trim().length < 3) {
@@ -66,6 +70,7 @@ function SearchInput() {
                             Authorization: `Bearer ${accessToken}`
                         }
                     });
+                    console.log(response.data)
                     getSuggestions(response.data);
                 } catch (error) {
                     if(error.response?.status === 401) {
@@ -91,10 +96,12 @@ function SearchInput() {
         if( searchOptions.length > 0 ) {
             let suggestionArray = [];
             searchOptions.forEach((item) => {
-                const { name, place_formatted } = item.properties;
+                const { name, place_formatted, coordinates, mapbox_id } = item.properties;
                 const locationInfo = {
                     locName: name,
-                    locFormatted: place_formatted
+                    locFormatted: place_formatted,
+                    coordinates,
+                    id: mapbox_id
                 }
                 suggestionArray.push(locationInfo);
             })
@@ -103,12 +110,17 @@ function SearchInput() {
         }
     }
 
-    // Handle the location selected
+    // Handle the location selected, and navigate to city endpoint
     const handleSelect = (locInfo) => {
         const formatted = `${locInfo.locName}, ${locInfo.locFormatted}`;
         setQuery(formatted);
-        setOptionSelected(true);
-        setShowSuggestions(false)
+        setOptionSelected(formatted);
+        setShowSuggestions(false);
+
+        const name = toSlug(formatted);
+        const locId = locInfo.id;
+
+        navigate(`/home/${name}/${locId}`);
     }
 
     return (

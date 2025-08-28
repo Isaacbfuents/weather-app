@@ -6,7 +6,7 @@ import cookieParser from 'cookie-parser';
 import { auth, requiredScopes } from 'express-oauth2-jwt-bearer'; 
 
 
-import { handleAutocomplete, getWeather } from './utils.js';
+import { handleAutocomplete, getWeather, getPlaceCoordinates } from './utils.js';
 import authRoutes from './routes/authRoutes.js';
 import weatherRoutes from './routes/weatherRoutes.js'
 
@@ -65,6 +65,7 @@ app.use('/weather', weatherRoutes);
 
 app.get('/autocomplete',checkJwt, handleAutocomplete);
 
+app.get('/coordinates', getPlaceCoordinates)
 // app.get('/api/weather', getWeather);
 
 

@@ -42,7 +42,22 @@ async function getWeather(req, res) {
         .then(response => response.json())
         .then(data => console.log(data))
 }
+
+async function getPlaceCoordinates(req, res) {
+    const locInfo = req.query.q;
+    console.log(locInfo);
+    
+    const url = `http://api.openweathermap.org/geo/1.0/direct?q=${locInfo}&limit=${5}&appid=${process.env.API_KEY}`
+
+    const response  = await fetch(url)
+    const data = await response.json();
+    res.send(data)  
+}
+
+
 export {
     handleAutocomplete, 
-    getWeather
+    getWeather, 
+    getPlaceCoordinates
 }
+
